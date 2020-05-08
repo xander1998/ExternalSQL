@@ -11,7 +11,7 @@
     "host": "localhost",
     "user": "root",
     "password": "",
-    "database": "xrplife"
+    "database": "xf"
   },
   "devmodeactive": false,
   "createtokenonstart": true
