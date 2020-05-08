@@ -1,0 +1,18 @@
+{
+  "api": {
+    "host": "localhost",
+    "port": 2000,
+    "route": "/external/api",
+    "secret": "yoursecretkey",
+    "community": "your_community_name"
+  },
+  "database": {
+    "connectionLimit": 100,
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "xrplife"
+  },
+  "devmodeactive": false,
+  "createtokenonstart": true
+}
