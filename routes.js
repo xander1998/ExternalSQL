@@ -22,13 +22,17 @@ module.exports = (app) => {
   app.post(config.api.route + "/query", VerifyToken, async (req, res) => {
     jwt.verify(req.token, req.body.secret, async (error, authData) => {
       if (!error) {
+        const data = req.body.data;
+
         // Null Checking
-        Object.keys(req.body.data).forEach((k) => {
-          if (req.body.data[k].toLowerCase() == "null") {
-            req.body.data[k] = null
+        Object.keys(data).forEach((k) => {
+          if (data[k].toLowerCase() == "null") {
+            data[k] = null
           }
         })
-        const query = await SendQuery(req.body.query, req.body.data);
+
+        // Query Results
+        const query = await SendQuery(req.body.query, data);
         res.json(query);
       } else {
         res.json({ status: false, message: `[ExternalSQL]: ${error}`, results: null });

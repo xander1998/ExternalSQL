@@ -25,29 +25,37 @@ function SendQuery(query, data) {
 
 pool.on("connection", (connection) => {
 	connection.config.queryFormat = function (query, values) {
-        if (!values) return query;
-        return query.replace(/\:(\w+)/g, function (txt, key) {
-            if (values.hasOwnProperty(key)) {
-                return this.escape(values[key]);
-            }
-            return txt;
-        }.bind(this));
-    };
-	console.log(`Connection: ${connection.threadId}`);
+      if (!values) return query;
+      return query.replace(/\:(\w+)/g, function (txt, key) {
+          if (values.hasOwnProperty(key)) {
+              return this.escape(values[key]);
+          }
+          return txt;
+      }.bind(this));
+  };
+  if (devmode) {
+    console.log(`Connection: ${connection.threadId}`);
+  }
 });
 
 pool.on("acquire", (connection) => {
-	console.log(`Connection Acquired: ${connection.threadId}`);
-	if (devmode){ DisplayConnections() }
+	if (devmode) {
+    console.log(`Connection Acquired: ${connection.threadId}`);
+    DisplayConnections()
+  }
 });
 
 pool.on("enqueue", () => {
-	console.log("Waiting for available connection slot");
+  if (devmode) {
+    console.log("Waiting for available connection slot");
+  }
 })
 
 pool.on("release", (connection) => {
-	console.log(`Connection Released: ${connection.threadId}`);
-	if (devmode){ DisplayConnections() }
+	if (devmode) {
+    console.log(`Connection Released: ${connection.threadId}`);
+    DisplayConnections()
+  }
 })
 
 function DisplayConnections() {
@@ -63,4 +71,4 @@ function DisplayConnections() {
 
 module.exports = SendQuery;
 
-console.log("[DatabaseAPI Message] : Loaded 'database.js'");
+console.log("[ExternalSQL Message] : Loaded 'database.js'");

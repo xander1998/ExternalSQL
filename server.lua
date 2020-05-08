@@ -13,7 +13,6 @@ end)
 function AsyncQueryCallback(queryData, callback)
   Citizen.CreateThread(function()
     if authToken then
-      queryData.data = queryData.data or {}
       PerformHttpRequest("http://" .. config.api.host .. ":" .. config.api.port .. config.api.route .. "/query", function(code, text, headers)
         local decode = json.decode(text)
         if decode.status then
@@ -23,7 +22,7 @@ function AsyncQueryCallback(queryData, callback)
         end
       end, "POST", json.encode({
         query = queryData.query,
-        data = queryData.data,
+        data = queryData.data or {},
         secret = config.api.secret
       }), {
         ["Content-Type"] = "application/json",
@@ -49,7 +48,7 @@ function AsyncQuery(queryData)
       end
     end, "POST", json.encode({
       query = queryData.query,
-      data = queryData.data,
+      data = queryData.data or {},
       secret = config.api.secret
     }), {
       ["Content-Type"] = "application/json",
