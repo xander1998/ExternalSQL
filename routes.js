@@ -25,11 +25,11 @@ module.exports = (app) => {
         const data = req.body.data;
 
         // Null Checking
-        Object.keys(data).forEach((k) => {
-          if (data[k].toLowerCase() == "null") {
-            data[k] = null
-          }
-        })
+        // Object.keys(data).forEach((k) => {
+        //   if (data[k].toLowerCase() === "null") {
+        //     data[k] = null
+        //   }
+        // })
 
         // Query Results
         const query = await SendQuery(req.body.query, data);
