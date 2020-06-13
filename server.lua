@@ -1,12 +1,11 @@
 local resource = GetCurrentResourceName()
 local config = json.decode(LoadResourceFile(resource, "config.json"))
 local authToken = nil
+local QueuedQueries = {}
 
-AddEventHandler("onResourceStart", function(startingResource)
-  if resource == startingResource then
-    if config.createtokenonstart then
-      CreateToken()
-    end
+Citizen.CreateThread(function()
+  if config.createtokenonstart then
+    CreateToken()
   end
 end)
 
@@ -29,14 +28,20 @@ function AsyncQueryCallback(queryData, callback)
         ["authorization"] = tostring("Bearer " .. authToken)
       })
     else
-      error("[ExternalSQL]: AsyncQueryCallback can't be called until authToken is created!")
+      while not authToken do
+        Citizen.Wait(100)
+      end
+      
+      if authToken then
+        AsyncQueryCallback(queryData, callback)
+      end
     end
   end)
 end
 exports("AsyncQueryCallback", AsyncQueryCallback)
 
-function AsyncQuery(queryData)
-  local p = promise.new()
+function AsyncQuery(queryData, p)
+  if not p then p = promise.new() end
   if authToken then
     PerformHttpRequest("http://" .. config.api.host .. ":" .. config.api.port .. config.api.route .. "/query", function(code, text, headers)
       local decode = json.decode(text)
@@ -55,8 +60,13 @@ function AsyncQuery(queryData)
       ["authorization"] = tostring("Bearer " .. authToken)
     })
   else
-    error("[ExternalSQL]: AsyncQuery can't be called until authToken is created!")
-    p:reject({ status = false, error = "[ExternalSQL]: AsyncQuery can't be called until authToken is created!" })
+    while not authToken do
+      Citizen.Wait(100)
+    end
+    
+    if authToken then
+      return AsyncQuery(queryData)
+    end
   end
   return Citizen.Await(p)
 end
@@ -77,3 +87,27 @@ function CreateToken()
     ["Content-Type"] = "application/json"
   })
 end
+exports("CreateToken", CreateToken)
+
+function CreateTokenAsync()
+  local p = promise.new()
+
+  PerformHttpRequest("http://" .. config.api.host .. ":" .. config.api.port .. config.api.route .. "/auth", function(code, text, headers)
+    local decode = json.decode(text)
+    if decode.status then
+      authToken = decode.token
+      p:resolve()
+    else
+      error("[ExternalSQL]: " .. decode.error)
+      p:reject("[ExternalSQL]: " .. decode.error)
+    end
+  end, "POST", json.encode({
+    community = config.api.community,
+    secret = config.api.secret
+  }), {
+    ["Content-Type"] = "application/json"
+  })
+
+  return Citizen.Await(p)
+end
+exports("CreateTokenAsync", CreateTokenAsync)
