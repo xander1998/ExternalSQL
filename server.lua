@@ -1,7 +1,6 @@
 local resource = GetCurrentResourceName()
 local config = json.decode(LoadResourceFile(resource, "config.json"))
 local authToken = nil
-local QueuedQueries = {}
 
 Citizen.CreateThread(function()
   if config.createtokenonstart then
