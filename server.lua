@@ -24,7 +24,7 @@ function AsyncQueryCallback(queryData, callback)
         secret = config.api.secret
       }), {
         ["Content-Type"] = "application/json",
-        ["authorization"] = tostring("Bearer " .. authToken)
+        ["Authorization"] = tostring("Bearer " .. authToken)
       })
     else
       while not authToken do

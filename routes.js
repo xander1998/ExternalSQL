@@ -9,13 +9,13 @@ module.exports = (app) => {
     if (CheckSecret(req.body.secret)) {
       jwt.sign({ community: req.body.community }, req.body.secret, { expiresIn: '2 days' }, (error, token) => {
         if (!error) {
-          res.json({ status: true, message: "[ExternalSQL]: Token Created!", token })
+          res.json({ ok: true, message: "[ExternalSQL]: Token Created!", token })
         } else {
-          res.json({ status: false, error: `[ExternalSQL]: ${error.message}`, token: null });
+          res.json({ ok: false, error: `[ExternalSQL]: ${error.message}`, token: null });
         }
       })
     } else {
-      res.json({ status: false, error: "[ExternalSQL]: Secret Invalid!", token: null });
+      res.json({ ok: false, error: "[ExternalSQL]: Secret Invalid!", token: null });
     }
   }),
 
@@ -44,6 +44,9 @@ module.exports = (app) => {
 
 function VerifyToken(req, res, next) {
   const bearerHeader = req.headers["authorization"];
+
+  console.log(req.headers);
+
   if (typeof(bearerHeader) !== "undefined") {
     const bearer = bearerHeader.split(" ");
     const bearerToken = bearer[1];

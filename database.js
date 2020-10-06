@@ -8,15 +8,28 @@ function SendQuery(query, data) {
   return new Promise((resolve) => {
     pool.getConnection((error, connection) => {
       if (!error) {
-        connection.query(query, data, (error, results, fields) => {
+        connection.query(query, data, (error, data, fields) => {
           if (!error) {
-            resolve({ status: true, results })
+            let returned_data = {}
+            let meta_data = {}
+
+            if (query.includes("SELECT")) {
+              meta_data = { affectedRows: null, insertId: null, changedRows: null }
+              returned_data = { ok: true, results: data, meta: meta_data }
+            } else if (query.includes("DELETE") || query.includes("UPDATE") || query.includes("INSERT")) {
+              meta_data = { affectedRows: data.affectedRows, insertId: data.insertId, changedRows: data.changedRows }
+              returned_data = { ok: true, results: [], meta: meta_data }
+            } else {
+              returned_data = { ok: true, results: [], meta: meta_data }
+            }
+
+            resolve(returned_data);
           } else {
-            resolve({ status: false, error });
+            resolve({ ok: false, results: [], meta: {}, error });
           }
         })
       } else {
-        resolve({ status: false, error });
+        resolve({ ok: false, results: [], meta: {}, error });
       }
       connection.release()
     })

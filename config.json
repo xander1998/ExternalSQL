@@ -4,7 +4,7 @@
     "port": 2000,
     "route": "/external/api",
     "secret": "yoursecretkey",
-    "community": "your_community_name"
+    "community": "testing"
   },
   "database": {
     "connectionLimit": 100,
@@ -12,7 +12,7 @@
     "port": 3306,
     "user": "root",
     "password": "",
-    "database": "xf"
+    "database": "testing"
   },
   "devmodeactive": false,
   "createtokenonstart": true
