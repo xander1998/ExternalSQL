@@ -11,16 +11,23 @@ function SendQuery(query, data) {
         connection.query(query, data, (error, data, fields) => {
           if (!error) {
             let returned_data = {}
-            let meta_data = {}
 
             if (query.includes("SELECT")) {
-              meta_data = { affectedRows: null, insertId: null, changedRows: null }
-              returned_data = { ok: true, results: data, meta: meta_data }
+              returned_data = { ok: true, results: data, meta: {
+                  affectedRows: null,
+                  insertId: null,
+                  changedRows: null
+                }
+              }
             } else if (query.includes("DELETE") || query.includes("UPDATE") || query.includes("INSERT")) {
-              meta_data = { affectedRows: data.affectedRows, insertId: data.insertId, changedRows: data.changedRows }
-              returned_data = { ok: true, results: [], meta: meta_data }
+              returned_data = { ok: true, results: [], meta: {
+                  affectedRows: data.affectedRows,
+                  insertId: data.insertId,
+                  changedRows: data.changedRows
+                }
+              }
             } else {
-              returned_data = { ok: true, results: [], meta: meta_data }
+              returned_data = { ok: true, results: [], meta: {} }
             }
 
             resolve(returned_data);
