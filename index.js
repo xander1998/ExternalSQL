@@ -1,7 +1,10 @@
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const config = require("./config.json");
+const configLoader = require("./config.js");
+
+configLoader.load();
+const config = configLoader.data;
 
 // APP USE BODYPARSER JSON
 app.use(bodyParser.json())
@@ -11,6 +14,7 @@ require("./routes")(app);
 
 // APP LISTENER
 app.listen(config.api.port, "localhost", (req, res) => {
+  emit('ExternalSQL:APIReady');
   console.log(`API Server Listening On Port: ${config.api.port}`)
 })
 

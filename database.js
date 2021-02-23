@@ -1,5 +1,6 @@
 const mysql = require("mysql");
-const config = require("./config.json");
+const configLoader = require("./config.js");
+const config = configLoader.data;
 const devmode = config.devmodeactive;
 
 const pool = mysql.createPool(config.database);

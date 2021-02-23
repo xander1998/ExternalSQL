@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const config = require("./config.json");
+const configLoader = require("./config.js")
+const config = configLoader.data
 const SendQuery = require("./database");
 
 module.exports = (app) => {
