@@ -14,7 +14,9 @@ require("./routes")(app);
 
 // APP LISTENER
 app.listen(config.api.port, "localhost", (req, res) => {
-  emit('ExternalSQL:APIReady');
+  setImmediate(() => {
+    emit('ExternalSQL:APIReady');
+  })
   console.log(`API Server Listening On Port: ${config.api.port}`)
 })
 
