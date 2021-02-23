@@ -37,6 +37,7 @@ and set the appropriate values.
 |    exsql_db_host    | string |   localhost   |
 |    exsql_db_user    | string |     root      |
 |  exsql_db_password  | string |               |
+|  exsql_db_database  | string |      drp      |
 |    exsql_devmode    | string |     false     |
 |  exsql_createtoken  | string |     true      |
 

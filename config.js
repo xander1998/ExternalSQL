@@ -49,6 +49,11 @@ const sv_configKeys = {
         type: "string",
         default: ""
     },
+    exsql_db_database: {
+        name: "database.database",
+        type: "string",
+        default: "drp"
+    },
     exsql_devmode: {
         name: "devmodeactive",
         type: "boolean",
