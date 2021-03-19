@@ -6,3 +6,7 @@ game { "gta5", "rdr3" }
 
 server_script "index.js"
 server_script "server.lua"
+
+files {
+    "config.json"
+}

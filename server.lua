@@ -1,13 +1,24 @@
-local resource = GetCurrentResourceName()
-local config = json.decode(LoadResourceFile(resource, "config.json"))
+local config = {}
 local authToken = nil
 local StoredQueries = {}
 
-AddEventHandler("onResourceStart", function(startingResource)
-  if resource == startingResource then
-    if config.createtokenonstart then
-      CreateToken()
-    end
+OnReadyQueue = {
+  CREATE_TOKEN = {
+      handler = function()
+          if config.createtokenonstart then
+            CreateToken()
+          end
+      end
+  }
+}
+
+AddEventHandler('ExternalSQL:ConfigLoaded', function (data)
+  config = data
+end)
+
+AddEventHandler('ExternalSQL:APIReady', function()
+  for k,v in pairs(OnReadyQueue) do
+      v.handler()
   end
 end)
 
