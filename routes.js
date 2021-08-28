@@ -23,20 +23,14 @@ module.exports = (app) => {
   app.post(config.api.route + "/query", VerifyToken, async (req, res) => {
     jwt.verify(req.token, req.body.secret, async (error, authData) => {
       if (!error) {
+        const str = req.body.query.replace(/\r?\n|\r/g, "");
         const data = req.body.data;
 
-        // Null Checking
-        // Object.keys(data).forEach((k) => {
-        //   if (data[k].toLowerCase() === "null") {
-        //     data[k] = null
-        //   }
-        // })
-
         // Query Results
-        const query = await SendQuery(req.body.query, data);
+        const query = await SendQuery(str, data);
         res.json(query);
       } else {
-        res.json({ status: false, message: `[ExternalSQL]: ${error}`, results: null });
+        res.json({ ok: false, message: `[ExternalSQL]: ${error}`, results: null });
       }
     })
   })
@@ -45,9 +39,6 @@ module.exports = (app) => {
 
 function VerifyToken(req, res, next) {
   const bearerHeader = req.headers["authorization"];
-
-  console.log(req.headers);
-
   if (typeof(bearerHeader) !== "undefined") {
     const bearer = bearerHeader.split(" ");
     const bearerToken = bearer[1];
