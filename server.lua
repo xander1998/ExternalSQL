@@ -27,8 +27,8 @@ function AsyncQueryCallback(queryData, callback)
     if authToken then
       PerformHttpRequest("http://" .. config.api.host .. ":" .. config.api.port .. config.api.route .. "/query", function(code, text, headers)
         local decode = json.decode(text)
-        if decode.status then
-          callback({ status = true, data = decode.results })
+        if decode.ok then
+          callback({ ok = true, data = decode.results })
         else
           error("[ExternalSQL]: " .. json.encode(decode.error))
         end
@@ -52,11 +52,11 @@ function AsyncQuery(queryData)
   if authToken then
     PerformHttpRequest("http://" .. config.api.host .. ":" .. config.api.port .. config.api.route .. "/query", function(code, text, headers)
       local decode = json.decode(text)
-      if decode.status then
-        p:resolve({ status = true, data = decode.results })
+      if decode.ok then
+        p:resolve({ ok = true, data = decode.results })
       else
         error("[ExternalSQL]: " .. json.encode(decode.error))
-        p:reject({ status = false, error = decode.error })
+        p:reject({ ok = false, error = decode.error })
       end
     end, "POST", json.encode({
       query = queryData.query,
@@ -68,7 +68,7 @@ function AsyncQuery(queryData)
     })
   else
     error("[ExternalSQL]: AsyncQuery can't be called until authToken is created!")
-    p:reject({ status = false, error = "[ExternalSQL]: AsyncQuery can't be called until authToken is created!" })
+    p:reject({ ok = false, error = "[ExternalSQL]: AsyncQuery can't be called until authToken is created!" })
   end
   return Citizen.Await(p)
 end
@@ -77,10 +77,10 @@ exports("AsyncQuery", AsyncQuery)
 function CreateToken()
   PerformHttpRequest("http://" .. config.api.host .. ":" .. config.api.port .. config.api.route .. "/auth", function(code, text, headers)
     local decode = json.decode(text)
-    if decode.status then
+    if decode.ok then
       authToken = decode.token
     else
-      error("[ExternalSQL]: " .. decode.error)
+      error("[ExternalSQL]: " .. tostring(decode.error))
     end
   end, "POST", json.encode({
     community = config.api.community,
