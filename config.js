@@ -89,30 +89,16 @@ const config = {
         createtokenonstart: true
     },
     load() {
-        let config = {};
-        const configString = LoadResourceFile(GetCurrentResourceName(), "config.json");
-        if(configString === "" || !configString) {
-            console.log(`^3[${GetCurrentResourceName()}]^7: ^4config.json not detected, loading from server config^7`);
-            for(const [key, info] of Object.entries(sv_configKeys)) {
-                const defaultValue = typeof info.default === "boolean" ? info.default === true ? "true" : "false" : info.default;
-                const value = GetConvar(key, defaultValue);
-                try {
-                    const parsedValue = this.castType(info.type, value);
-                    this.setConfigValue(info.name, parsedValue);
-                } catch(e) {
-                    console.log(`^1[${GetCurrentResourceName()}]: ${e.message}^7`);
-                }
-            }
-        } else {
+        for(const [key, info] of Object.entries(sv_configKeys)) {
+            const defaultValue = typeof info.default === "boolean" ? info.default === true ? "true" : "false" : info.default;
+            const value = GetConvar(key, defaultValue);
             try {
-                config = JSON.parse(configString);
-                this.data = config;
-                console.log(`^2[${GetCurrentResourceName()}]^7:^2 successfully loaded config.json^7`);
+                const parsedValue = this.castType(info.type, value);
+                this.setConfigValue(info.name, parsedValue);
             } catch(e) {
-                console.log(`^1[${GetCurrentResourceName()}]^7: ^3failed to parse config.json. ${e.message}^7`);
+                console.log(`^1[${GetCurrentResourceName()}]: ${e.message}^7`);
             }
         }
-
         setImmediate(() => {
             emit('ExternalSQL:ConfigLoaded', this.data);
         });
