@@ -36,7 +36,7 @@ module.exports = (app) => {
         const query = await SendQuery(req.body.query, data);
         res.json(query);
       } else {
-        res.json({ status: false, message: `[ExternalSQL]: ${error}`, results: null });
+        res.json({ ok: false, message: `[ExternalSQL]: ${error}`, results: null });
       }
     })
   })
@@ -45,9 +45,6 @@ module.exports = (app) => {
 
 function VerifyToken(req, res, next) {
   const bearerHeader = req.headers["authorization"];
-
-  console.log(req.headers);
-
   if (typeof(bearerHeader) !== "undefined") {
     const bearer = bearerHeader.split(" ");
     const bearerToken = bearer[1];
