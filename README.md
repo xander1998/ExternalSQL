@@ -3,27 +3,6 @@
 Use either the config.json or server configruation to set your parameters. If you wish to use server configuration, simply delete the `config.json`
 and set the appropriate values.
 
-### Example config.json
-```json
-  "api": {
-    "host": "localhost",
-    "port": 2000,
-    "route": "/external/api",
-    "secret": "yoursecretkey",
-    "community": "testing"
-  },
-  "database": {
-    "connectionLimit": 100,
-    "host": "localhost",
-    "port": 3306,
-    "user": "root",
-    "password": "",
-    "database": "testing"
-  },
-  "devmodeactive": false,
-  "createtokenonstart": true
-```
-
 ### List of server configuration variables
 ---
 
