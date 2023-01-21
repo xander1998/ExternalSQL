@@ -1,23 +1,9 @@
-const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
-const configLoader = require("./config.js");
+const SendQuery = require("./database");
 
-configLoader.load();
-const config = configLoader.data;
-
-// APP USE BODYPARSER JSON
-app.use(bodyParser.json())
-
-// ROUTES FILE
-require("./routes")(app);
-
-// APP LISTENER
-app.listen(config.api.port, "localhost", (req, res) => {
-  setImmediate(() => {
-    emit('ExternalSQL:APIReady');
-  })
-  console.log(`API Server Listening On Port: ${config.api.port}`)
+exports("SendQuery", (query, data, callback) => {
+  query = query.replace(/\r?\n|\r/g, "");
+  
+  SendQuery(query, data, (results) => {
+    callback(results)
+  });
 })
-
-console.log("[ExternalSQL Message] : Loaded 'index.js'");

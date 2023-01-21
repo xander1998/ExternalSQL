@@ -10,4 +10,7 @@ dependency "yarn"
 
 files "config.json"
 
-server_scripts { "index.js", "server.lua" }
+server_scripts {
+  "index.js",
+  "exports.lua"
+}

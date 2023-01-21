@@ -1,48 +1,95 @@
 const mysql = require("mysql");
-const configLoader = require("./config.js");
-const config = configLoader.data;
-const devmode = config.devmodeactive;
 
-const pool = mysql.createPool(config.database);
+const config = require("./config");
 
-function SendQuery(query, data) {
-  return new Promise((resolve) => {
-    pool.getConnection((error, connection) => {
-      if (!error) {
-        connection.query(query, data, (error, data, fields) => {
-          if (!error) {
-            let returned_data = {}
+// Database Pool
+const pool = mysql.createPool({
+  connectionLimit: config.connectionLimit,
+  host: config.host,
+  user: config.user,
+  password: config.password,
+  database: config.database
+});
 
-            if (query.includes("SELECT")) {
-              returned_data = { ok: true, results: data, meta: {
-                  affectedRows: null,
-                  insertId: null,
-                  changedRows: null
-                }
-              }
-            } else if (query.includes("DELETE") || query.includes("UPDATE") || query.includes("INSERT")) {
-              returned_data = { ok: true, results: [], meta: {
-                  affectedRows: data.affectedRows,
-                  insertId: data.insertId,
-                  changedRows: data.changedRows
-                }
-              }
-            } else {
-              returned_data = { ok: true, results: [], meta: {} }
-            }
+function SendQuery(query, data, callback) {
+  pool.getConnection((connectionError, connection) => {
 
-            resolve(returned_data);
-          } else {
-            resolve({ ok: false, results: [], meta: {}, error });
-          }
-        })
-      } else {
-        resolve({ ok: false, results: [], meta: {}, error });
+    // Connection Error
+    if (connectionError) {
+      callback({ ok: false, results: [], meta: {}, error: connectionError });
+      return;
+    }
+
+    connection.query(query, data, (queryError, data, fields) => {
+      
+      // Query Error
+      if (queryError) {
+        callback({ ok: false, results: [], meta: {}, error: queryError });
+        return;
       }
-      connection.release()
+
+      if (query.includes("SELECT")) {
+        SelectQuery(data, callback, connection);
+        return;
+      }
+
+      if (query.includes("DELETE")) {
+        DeleteQuery(data, callback, connection);
+        return;
+      }
+
+      if (query.includes("UPDATE")) {
+        UpdateQuery(data, callback, connection);
+        return;
+      }
+
+      if (query.includes("INSERT")) {
+        InsertQuery(data, callback, connection);
+        return;
+      }
+
+      callback({ ok: true, results: [], meta: {} });
+      connection.release();
     })
-  })
+  });
 }
+
+function SelectQuery(data, callback, connection) {
+  callback({ ok: true, results: data, meta: {} })
+  connection.release();
+}
+
+function DeleteQuery(data, callback, connection) {
+  callback({ ok: true, results: [], meta: { affectedRows: data.affectedRows, insertId: data.insertId, changedRows: data.changedRows } })
+  connection.release();
+}
+
+function UpdateQuery(data, callback, connection) {
+  callback({ ok: true, results: [], meta: { affectedRows: data.affectedRows, insertId: data.insertId, changedRows: data.changedRows } })
+  connection.release();
+}
+
+function InsertQuery(data, callback, connection) {
+  callback({ ok: true, results: [], meta: { affectedRows: data.affectedRows, insertId: data.insertId, changedRows: data.changedRows } })
+  connection.release();
+}
+
+// MySQL Pool Events
+pool.on("connection", (connection) => {
+  connection.config.queryFormat = (query, values) => {
+    if (!values) return query;
+
+    return query.replace(/\:(\w+)/g, (txt, key) => {
+      if (values.hasOwnProperty(key)) {
+        return this.escape(values[key]);
+      }
+
+      return txt
+    }).bind(this);
+  }
+
+
+});
 
 pool.on("connection", (connection) => {
 	connection.config.queryFormat = function (query, values) {
@@ -54,31 +101,33 @@ pool.on("connection", (connection) => {
           return txt;
       }.bind(this));
   };
-  if (devmode) {
-    console.log(`Connection: ${connection.threadId}`);
-  }
+  
+  if (config.dev == "false") return;
+
+  console.log(`Connection: ${connection.threadId}`);
 });
 
 pool.on("acquire", (connection) => {
-	if (devmode) {
-    console.log(`Connection Acquired: ${connection.threadId}`);
-    DisplayConnections()
-  }
+  if (config.dev == "false") return;
+
+  console.log(`Connection Acquired: ${connection.threadId}`);
+  DisplayConnections();
 });
 
 pool.on("enqueue", () => {
-  if (devmode) {
-    console.log("Waiting for available connection slot");
-  }
-})
+  if (config.dev == "false") return;
+
+  console.log("Waiting for available connection...");
+});
 
 pool.on("release", (connection) => {
-	if (devmode) {
-    console.log(`Connection Released: ${connection.threadId}`);
-    DisplayConnections()
-  }
-})
+  if (config.dev == "false") return;
 
+  console.log(`Connection Released: ${connection.threadId}`);
+  DisplayConnections();
+});
+
+// Event Function
 function DisplayConnections() {
 	console.log(`Acquiring Connections: ${pool._acquiringConnections.length}`);
 	console.log("------------------------------------------------")
@@ -91,5 +140,3 @@ function DisplayConnections() {
 }
 
 module.exports = SendQuery;
-
-console.log("[ExternalSQL Message] : Loaded 'database.js'");
