@@ -1,24 +1,13 @@
-# Configuration
-
-Use either the config.json or server configruation to set your parameters. If you wish to use server configuration, simply delete the `config.json`
-and set the appropriate values.
-
-### List of server configuration variables
+### List of database configuration variables
 ---
 
 |    Variable Name    |  Type  |    Default    |
 | :-----------------: | :----: | :-----------: |
-|   exsql_api_host    | string |   localhost   |
-|   exsql_api_port    | number |     2000      |
-|   exsql_api_route   | string | /external/api |
-|  exsql_api_secret   | string | yoursecretkey |
-| exsql_api_community | string |    testing    |
 |    exsql_db_host    | string |   localhost   |
 |    exsql_db_user    | string |     root      |
 |  exsql_db_password  | string |               |
 |  exsql_db_database  | string |      drp      |
 |    exsql_devmode    | string |     false     |
-|  exsql_createtoken  | string |     true      |
 
 ### Example server.cfg
 
